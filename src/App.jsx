@@ -11,47 +11,56 @@ import Cart from './components/Cart';
 import Checkout from './components/Checkout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import ProductDetails from './components/ProductDetails';
 
 const AppContent = () => {
   const { darkMode } = useTheme();
+const theme = createTheme({
+  palette: {
+    mode: darkMode ? 'dark' : 'light',
+    primary: {
+      main: '#9B00FF',
+      contrastText: '#FFFFFF',
+    },
+    secondary: {
+      main: darkMode ? '#9B00FF' : '#BB33FF',
+    },
+    background: {
+      default: darkMode ? '#000000' : '#FFFFFF',
+      paper: darkMode ? '#121212' : '#FFFFFF',
+    },
+    text: {
+      primary: darkMode ? '#9B00FF' : '#000000',
+      secondary: darkMode ? '#FFFFFF' : '#9B00FF',
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        contained: {
+          backgroundColor: '#9B00FF',
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: '#7A00CC',
+            boxShadow: '0 0 8px #9B00FF',
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: darkMode ? '#000000' : '#9B00FF',
+          color: darkMode ? '#9B00FF' : '#FFFFFF',
+          boxShadow: darkMode ? '0 0 10px #9B00FF' : 'none',
+        },
+      },
+    },
+  },
+});
 
-  const theme = createTheme({
-    palette: {
-      mode: darkMode ? 'dark' : 'light',
-      primary: {
-        main: '#CCDC28',
-        contrastText: '#000000',
-      },
-      secondary: {
-        main: darkMode ? '#CCDC28' : '#1976d2',
-      },
-      background: {
-        default: darkMode ? '#121212' : '#ffffff',
-        paper: darkMode ? '#1e1e1e' : '#ffffff',
-      },
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          contained: {
-            backgroundColor: '#CCDC28',
-            color: '#000000',
-            '&:hover': {
-              backgroundColor: '#b8c424',
-            },
-          },
-        },
-      },
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: darkMode ? '#1e1e1e' : '#CCDC28',
-            color: darkMode ? '#ffffff' : '#000000',
-          },
-        },
-      },
-    },
-  });
+
+
 
   return (
     <MUIThemeProvider theme={theme}>
@@ -67,6 +76,8 @@ const AppContent = () => {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/" element={<Navigate to="/products" replace />} />
               <Route path="/login" element={<Navigate to="/products" replace />} />
+              <Route path="/products/:id" element={<ProductDetails />} />
+
             </Routes>
           </ProtectedRoute>
           <Routes>

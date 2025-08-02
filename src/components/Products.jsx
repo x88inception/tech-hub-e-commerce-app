@@ -11,9 +11,12 @@ import {
   Box,
   Chip,
   Pagination,
-  Stack
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
-import { ShoppingCart } from '@mui/icons-material';
+import { ShoppingCart, ViewModule, ViewList } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
 
 const Products = () => {
@@ -22,7 +25,9 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(6);
+  const productsPerPage = 6;
+  const [view, setView] = useState('grid');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -83,6 +88,12 @@ const Products = () => {
     setCurrentPage(value);
   };
 
+  const handleViewChange = (event, nextView) => {
+    if (nextView !== null) {
+      setView(nextView);
+    }
+  };
+
   if (loading) {
     return (
       <Container>
@@ -100,21 +111,56 @@ const Products = () => {
           Products ({filteredProducts.length} items)
         </Typography>
         
-        <TextField
-          fullWidth
-          label="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ mb: 3 }}
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <TextField
+            label="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ flex: 1, mr: 2 }}
+          />
 
-        <Grid container spacing={3}>
+          <ToggleButtonGroup
+            value={view}
+            exclusive
+            onChange={handleViewChange}
+            aria-label="view toggle"
+          >
+            <ToggleButton value="grid" aria-label="grid view">
+              <ViewModule />
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="list view">
+              <ViewList />
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        <Grid container spacing={3} justifyContent="center">
           {currentProducts.map((product) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Grid 
+              item 
+              xs={12} 
+              sm={view === 'grid' ? 6 : 12} 
+              md={view === 'grid' ? 4 : 12} 
+              key={product.id}
+            >
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: view === 'grid' ? 'column' : 'row',
+                  cursor: 'pointer',
+                  maxWidth: view === 'grid' ? 350 : '100%',
+                  margin: 'auto',
+                }}
+                onClick={() => navigate(`/products/${product.id}`)}
+              >
                 <CardMedia
                   component="img"
-                  height="200"
+                  sx={{
+                    width: view === 'grid' ? '100%' : 200,
+                    height: view === 'grid' ? 180 : 'auto',
+                    objectFit: 'cover',
+                  }}
                   image={product.image}
                   alt={product.title}
                 />
@@ -145,9 +191,11 @@ const Products = () => {
                   
                   <Button
                     variant="contained"
-                    fullWidth
                     startIcon={<ShoppingCart />}
-                    onClick={() => addToCart(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
                   >
                     Add to Cart
                   </Button>
